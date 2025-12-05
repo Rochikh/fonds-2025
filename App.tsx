@@ -107,6 +107,9 @@ const App: React.FC = () => {
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-navy-900 tracking-tight pt-2">
           Week-end du fonds national
         </h1>
+        <p className="text-xl md:text-2xl font-serif text-slate-600 mt-1 italic">
+          Bahá’ís de Lille
+        </p>
         
         <div className="inline-flex items-center justify-center space-x-2 mt-4 text-gold-700 bg-gold-50 px-4 py-1.5 rounded-full border border-gold-100">
           <Calendar size={14} />
