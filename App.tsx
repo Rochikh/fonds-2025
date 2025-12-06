@@ -6,11 +6,26 @@ import confetti from 'canvas-confetti';
 import { ArrowRight, Lock, Calendar, Quote } from 'lucide-react';
 
 const App: React.FC = () => {
-  const [total, setTotal] = useState<number>(0);
+  // Initialisation immédiate avec la valeur en cache pour éviter le "0" au chargement
+  const [total, setTotal] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('fund_total');
+      return saved ? parseFloat(saved) : 0;
+    }
+    return 0;
+  });
+  
   const [pledgeAmount, setPledgeAmount] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
+
+  // Sauvegarde dans le cache local à chaque changement du total
+  useEffect(() => {
+    if (total > 0) {
+      localStorage.setItem('fund_total', total.toString());
+    }
+  }, [total]);
 
   // Chargement initial et Polling (rafraîchissement automatique)
   useEffect(() => {
@@ -29,8 +44,8 @@ const App: React.FC = () => {
     // Premier appel immédiat
     fetchData();
 
-    // Appel toutes les 10 secondes pour voir les nouveaux dons
-    const intervalId = setInterval(fetchData, 10000);
+    // Appel toutes les 5 secondes pour plus de réactivité (au lieu de 10)
+    const intervalId = setInterval(fetchData, 5000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -173,17 +188,13 @@ const App: React.FC = () => {
               className="w-full group relative flex items-center justify-center py-4 px-6 border border-transparent text-lg font-medium rounded-xl text-white bg-navy-900 hover:bg-navy-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-xl active:scale-[0.99]"
             >
               {isSubmitting ? (
-                <span className="flex items-center text-gold-100">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Traitement...
+                <span className="flex items-center">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  Validation...
                 </span>
               ) : (
-                <span className="flex items-center font-serif tracking-wide">
-                  Valider mon offrande
-                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-gold-400" size={20} />
+                <span className="flex items-center">
+                  Je valide ma promesse <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
                 </span>
               )}
             </button>
@@ -191,16 +202,6 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 text-center text-slate-400 text-xs leading-relaxed border-t border-slate-100 mt-4">
-        <p className="font-semibold text-slate-500 mb-1">Assemblée Spirituelle Nationale des Bahá’ís de France</p>
-        <p>45 rue Pergolèse - 75116 Paris</p>
-        <p>Tél : (+33) 1 45 00 90 26 • secretariat@bahai.fr</p>
-        <div className="mt-4 pt-4 border-t border-slate-100 w-16 mx-auto opacity-50"></div>
-        <p className="mt-2 text-slate-300 italic">Paris, le 2 décembre 2025</p>
-      </footer>
-
-      {/* Modals */}
       <PledgeModal 
         isOpen={modalOpen} 
         onClose={() => setModalOpen(false)} 
