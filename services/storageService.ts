@@ -3,12 +3,6 @@ import { DonationState } from '../types';
 // L'URL de votre script Google Apps
 const API_URL = 'https://script.google.com/macros/s/AKfycbwvCBx_pJyuUYWl-6hGzUSscuve-knywyr15A2E45s9HsZKUan-v9mfN4Fb28NOUNvJ/exec';
 
-// Valeur par défaut en cas d'erreur réseau
-const defaultState: DonationState = {
-  totalAmount: 0,
-  count: 0
-};
-
 export const getFundState = async (): Promise<DonationState> => {
   try {
     const response = await fetch(API_URL);
@@ -16,7 +10,9 @@ export const getFundState = async (): Promise<DonationState> => {
     return await response.json();
   } catch (e) {
     console.error("Erreur de connexion au serveur", e);
-    return defaultState;
+    // On propage l'erreur pour que l'App garde la valeur en cache (localStorage)
+    // au lieu de remettre le compteur à 0.
+    throw e;
   }
 };
 
