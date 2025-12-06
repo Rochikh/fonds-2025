@@ -5,11 +5,15 @@ interface CounterProps {
 }
 
 export const Counter: React.FC<CounterProps> = ({ value }) => {
-  const [displayValue, setDisplayValue] = useState(0);
+  // On initialise directement avec la valeur actuelle pour éviter le comptage depuis 0 au chargement
+  const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
+    // Si la valeur est identique (ex: au chargement depuis le cache), pas besoin d'animer
+    if (displayValue === value) return;
+
     let startTimestamp: number | null = null;
-    const duration = 2000; // 2 seconds animation
+    const duration = 1000; // Animation plus rapide (1s au lieu de 2s) pour un ressenti "temps réel"
     const startValue = displayValue;
     
     const step = (timestamp: number) => {
